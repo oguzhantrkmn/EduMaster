@@ -2,11 +2,48 @@ import 'package:edumaster/pages/backgrounds.dart';
 import 'package:edumaster/pages/registerScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:edumaster/pages/homeScreen.dart';  // HomeScreen sayfanızın olduğu yolu doğru bir şekilde ekleyin
+import 'package:edumaster/pages/homeScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (_rememberMe) {
+        _emailController.text = prefs.getString('email') ?? '';
+        _passwordController.text = prefs.getString('password') ?? '';
+      }
+    });
+  }
+
+  void _saveUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setString('email', _emailController.text.trim());
+      await prefs.setString('password', _passwordController.text.trim());
+      await prefs.setBool('rememberMe', _rememberMe);
+    } else {
+      await prefs.remove('email');
+      await prefs.remove('password');
+      await prefs.remove('rememberMe');
+    }
+  }
 
   void _login(BuildContext context) async {
     try {
@@ -14,12 +51,11 @@ class LoginScreen extends StatelessWidget {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Giriş başarılıysa Ana Sayfaya yönlendir
+      _saveUserData();
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => HomeScreen()),  // Ana sayfanız
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     } catch (e) {
-      // Giriş başarısızsa hata mesajı göster
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Giriş başarısız: ${e.toString()}')),
       );
@@ -33,7 +69,7 @@ class LoginScreen extends StatelessWidget {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: Backgrounds.getRandomBackground(),
-            fit: BoxFit.cover,  // Resmi tüm ekranı kaplayacak şekilde ayarla
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
@@ -48,7 +84,7 @@ class LoginScreen extends StatelessWidget {
                     labelText: 'E-posta',
                     border: OutlineInputBorder(),
                     fillColor: Colors.white,
-                    filled: true,  // Input alanı arkaplanını beyaz yapar
+                    filled: true,
                   ),
                   keyboardType: TextInputType.emailAddress,
                 ),
@@ -59,17 +95,31 @@ class LoginScreen extends StatelessWidget {
                     labelText: 'Şifre',
                     border: OutlineInputBorder(),
                     fillColor: Colors.white,
-                    filled: true,  // Input alanı arkaplanını beyaz yapar
+                    filled: true,
                   ),
                   obscureText: true,
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _rememberMe,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _rememberMe = newValue!;
+                        });
+                      },
+                    ),
+                    Text('Beni Hatırla'),
+                  ],
+                ),
+                SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () => _login(context),
                   child: Text('Giriş Yap'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 50),
-                    backgroundColor: Colors.green,  // Buton rengi
+                    backgroundColor: Colors.green,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -83,8 +133,8 @@ class LoginScreen extends StatelessWidget {
                   child: Text('Hesap Oluştur'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 50),
-                    backgroundColor: Colors.white,  // Buton rengi
-                    foregroundColor: Colors.black,  // Yazı rengi
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
                   ),
                 ),
               ],
