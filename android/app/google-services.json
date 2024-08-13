@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "246253954238",
+    "project_id": "edu-master-a0629",
+    "storage_bucket": "edu-master-a0629.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246253954238:android:19491108d4fef26a222aef",
+        "android_client_info": {
+          "package_name": "com.edumaster.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMSXWbURV5Nd1eeoEWqbd4vhVH7FmrU7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
